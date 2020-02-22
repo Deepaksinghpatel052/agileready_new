@@ -1,0 +1,430 @@
+{% extends 'admin/dashboard-template.html' %}
+{% block content %}
+{% load team_data %}
+{% load static %}
+{% block cssstyle %}
+<link href='{% static "css/jquery.lwMultiSelect.css" %}'  rel="stylesheet" />
+<style type="text/css">
+  span.select2.select2-container.select2-container--default.select2-container--below.select2-container--focus {
+    width: 100% !important;
+}
+
+</style>
+    {% endblock %}
+
+
+
+<div class="container-fluid text-white">
+               <div class="row p-t-b-8 ">
+                  <div class="col">
+                     <h1><span id="page_name"></span></h1>
+                  </div>
+               </div>
+                 <div class="row p-t-b-8">
+         <p class="user-nick"> {{user_name}}</p>
+  </div>
+            </div>
+            </header>
+
+<div class="container-fluid">
+           
+            <div class="row p-t-b-20">
+               <div class="col-md-12">
+        {% if messages %}
+                   {% for message in messages %}
+                     {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+                    <div class="alert alert-success alert-dismissible">
+                      <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: crimson!important">&times;</a>
+                      <strong>{{message}}</strong> 
+                    </div>
+                       {% endif %}
+
+                   {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                    <div class="alert alert-danger alert-dismissible">
+                      <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: crimson!important">&times;</a>
+                     {{message}}
+                    </div>
+                       {% endif %}
+
+                   {% endfor %}
+               {% endif %}
+                  <!-- <div class="card no-b"> -->
+              <div class="login-form-card">
+        
+                       
+                          <div class="row">
+                      <div class="col-md-12 mb-2">
+                        <button class="btn-primary add-data"><a href="{{BASE_URL}}manage-products/add-product">Add Product</a></button>
+          <button id="show_col" class="btn-primary import-data" data-toggle="modal" data-target="#myModal">Show Columns</button>
+          <button class="btn-primary import-data" data-toggle="modal" onclick="set_data('Ar Product','products-view')" data-target="#myModalImportCSV">Import</button>
+         </div>
+            <div class="col-md-12">
+
+                           <!--  <div class="col-md-12">
+                  <div class="row">
+                  <div class="col-md-3">
+                     <div class="slct-role-1">
+              <label style="">Team &nbsp;</label>
+                <input type="search" name="" class="form-control" >
+                    </div>
+                  </div>
+                    <div class="col-md-3">
+                    <div class="slct-role-2">
+              <label style="">Backlog &nbsp;</label>
+                <input type="search" name="" class="form-control" >
+                    </div>
+                  </div>
+                </div>
+                </div> -->
+
+                </div>
+              </div>
+
+            <div class="table-responsive">
+            <!-- <div class="table-responsive hdinpt"> -->
+              
+                                     <!-- start Table -->
+                                     <div id="example_wrapper" class="dataTables_wrapper no-footer"><div class="dataTables_length" id="example_length"><label>Show <select name="example_length" aria-controls="example" class=""><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label></div>
+                                     <!-- example12  -->
+                                     <table id="example" width="auto" border="1" class="table dataTable table-striped table-bordered newpage  no-footer" align="center" cellpadding="0" cellspacing="0" style="font-size: 15px; width: auto; margin:0px;" role="grid" aria-describedby="example_info">
+           <thead>
+            <tr class="dnd-moved" role="row">
+              <th align="left" valign="top">S.No.</th>
+<!--    <th align="left" class="slct" valign="top" draggable="true" tabindex="0" aria-controls="example" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Select: activate to sort column descending" style="width: 57px;">Select</th> -->
+
+
+<!-- --------------------------------------- -->
+
+  {% if get_show_column|length > 0 %}
+        {% for v in get_show_column %}
+          <th align="left" class="{{v}}" valign="top" draggable="true" tabindex="0" aria-controls="example" rowspan="1" colspan="1" aria-label="US ID: activate to sort column ascending">{{ all_column_list|get_item:v  }}  </th>
+          {% endfor %}
+           
+  {% else %}
+
+
+           {% for k , v in all_column_list.items %}
+          <th align="left" class="{{v}}" valign="top" draggable="true" tabindex="0" aria-controls="example" rowspan="1" colspan="1" aria-label="US ID: activate to sort column ascending">{{v}}</th>
+          {% endfor %}    
+            
+        
+  {% endif %}
+
+
+
+
+   <th align="left" class="action" valign="top" draggable="true" tabindex="0" aria-controls="example" rowspan="1" colspan="1" aria-label="Action: activate to sort column ascending">Action</th>
+</tr>
+        </thead>
+                <tbody>
+
+
+      
+            
+            {% if all_project_get %}
+            {% for data in all_project_get %}
+
+        
+        <tr class="dnd-moved odd" role="row">
+          <td align="left" valign="top">{{forloop.counter}}</td>
+
+
+
+{% if get_show_column|length > 0 %}
+
+  {% for v in get_show_column %}
+              
+              {% if v == 'Team_parent' %}
+              <td align="left" class="backpa" valign="top">
+{% team_add data.ORG_ID data.id%}
+              <!-- {{ data.Team_parent.all|join:" | "  }} -->
+            </td> 
+              {% endif %}
+
+              {% if v == 'Children_backlog_list' %}
+
+              <td align="left" class="backpa" valign="top">
+              {{ data.backlog_by_product.all|join:" |<br>" }}
+              <!-- {{ data.Children_backlog_list}} -->
+            </td> 
+              {% endif %}
+
+              {% if v == 'Product_name' %}
+              <td align="left" class="backpa"  valign="top">{{ data.Product_name  }}</td> 
+              {% endif %}
+
+              {% if v == 'Product_description' %}
+              <td align="left" class="backpa" valign="top">{{ data.Product_description  }}</td> 
+              {% endif %}
+
+              {% if v == 'Business_unit' %}
+              <td align="left" class="backpa"  valign="top">{{ data.Business_unit  }}</td> 
+              {% endif %}
+
+              {% if v == 'Product_size' %}
+              <td align="left" class="backpa"  valign="top">
+{% size data.ORG_ID data.id%}
+
+                <!-- {{ data.Product_size  }} -->
+              </td> 
+              {% endif %}
+
+
+
+              {% if v == 'Product_score' %}
+              <td align="left" class="backpa"  valign="top">
+                <!-- <div class="barOverflow">
+                            <div class="bar"></div>
+                         </div> -->
+                         <!-- <span> -->
+<!-- {% mul_add data.ORG_ID data.id%} -->
+                         <!-- {{data.Product_score}} -->
+                       <!-- </span>% -->
+
+                                        <div class="col-md-1 mb20">
+   <div class="cdev" data-percent="{% mul_add data.ORG_ID data.id %}" data-duration="1000" data-color=",#d35400"></div>
+</div>
+                     <!-- </div> -->
+                   </td> 
+              {% endif %}
+
+              {% if v == 'US_quality_threshold' %}
+              <td align="left" class="backpa"  valign="top">{{ data.US_quality_threshold  }}</td> 
+              {% endif %}      
+             
+
+
+             {% if v == 'ORG_ID' %}
+              <td align="left" class="backpa"  valign="top">{{ data.ORG_ID  }}</td> 
+              {% endif %} 
+
+
+              {% if v == 'create_by' %}
+              <td align="left" class="backpa"  valign="top">{{ data.create_by  }}</td> 
+              {% endif %}
+
+
+              {% if v == 'create_dt' %}
+              <td align="left" class="backpa" valign="top">{{ data.create_dt  }}</td> 
+              {% endif %} 
+
+
+              {% if v == 'update_by' %}
+              <td align="left" class="backpa"  valign="top">{{ data.update_by  }}</td> 
+              {% endif %}  
+         
+
+              {% if v == 'update_dt' %}
+              <td align="left" class="backpa"  valign="top">{{ data.update_dt  }}</td> 
+              {% endif %}  
+
+
+  {% endfor %}
+
+
+{% else %}
+ <td align="left" class="backpa"  valign="top">
+  {% team_add data.ORG_ID data.id%}
+ <!-- {{data.Team_parent.all|join:" | " }} -->
+
+</td>
+             <td align="left" class="backpa"  style="width: 52px;" valign="top">{{data.backlog_by_product.all|join:" |<br>" }}</td>
+             <td align="left" class="usid" valign="top" >{{data.Product_name}}</td>
+              <td align="left" class="usid"  valign="top">{{data.Product_description}}</td>
+              <td align="left" class="usid"  valign="top">{{data.Business_unit}}</td>
+             <td align="left" class="usid"  valign="top">{{data.Product_size}}</td>
+              <td align="left" class="usid"  valign="top">
+                <!-- <div class="progress">
+                         <div class="barOverflow">
+                            <div class="bar"></div>
+                         </div>
+                         <span>
+{% mul_add data.ORG_ID data.id%}
+                       </span>%
+                     </div> -->
+                                                             <div class="col-md-1 mb20">
+   <div class="cdev" data-percent="{% mul_add data.ORG_ID data.id %}" data-duration="1000" data-color=",#d35400"></div>
+</div>
+                   </td>
+               <td align="left" class="usid"  valign="top">{{data.US_quality_threshold}}</td>
+              <td align="left" class="usid"  valign="top">{{data.ORG_ID}}</td>
+              <td align="left" class="usid"  valign="top">{{data.create_by}}</td>
+              <td align="left" class="usid"  valign="top">{{data.create_dt}}</td>
+               <td align="left" class="usid"  valign="top">{{data.update_by}}</td>
+              <td align="left" class="usid"  valign="top">{{data.update_dt}}</td>
+{% endif %}
+
+
+
+
+                <td align="left" class="action" valign="top">
+                <table width="100%" border="0" align="left" cellpadding="0" cellspacing="0">
+                   <tbody><tr>
+                    <td align="center"  class="usid" valign="top"><a href="{{BASE_URL}}manage-products/edit-product/{{data.id}}"><i class="icon-pencil"></i></a></td>
+                    <td align="center"  class="usid" valign="top"><a href="javascript:;" onclick="remove_product('{{BASE_URL}}manage-products/remove-product/{{data.id}}','{{Remove_Request_msg}}','{{Remove_done_msg}}','{{Not_Remove_msg}}');"><i class="icon-delete"></i></a><a></a></td>
+                   </tr>
+                </tbody></table>
+                </td>
+            </tr>
+    {% endfor %}
+            {% endif %}
+
+        </tbody>
+    </table></div>
+                                     <!---Table Ends---->
+</div>
+                                    
+                        
+                      <!-- </div> -->
+             </div>
+              <!-- </div> -->
+               </div>
+             </div>
+         </div>
+
+
+
+
+
+
+
+
+<!-----------------------popup------------start--------------->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+
+    <!-- Modal content-->
+    <div class="modal-content" style="margin-top:60px;">
+      <div class="modal-header">
+    <h4 class="modal-title" style="width: 100%;">Choose Product View </h4>
+        <a href="{{BASE_URL}}products-view" class="close"><span aria-hidden="true" style="font-size: 32px; color: #000;">×</span></a>
+        <!-- <button type="button" class="close" data-dismiss="modal" style="margin: 0; padding: 0 !important; color: #000 !important;">&times;</button> -->
+      </div>
+      <div class="modal-body ">
+    
+      <div class="container">
+        <select id="selectDefaults" multiple="multiple">
+          {% for k , v in all_column_list.items %}   
+       
+          {% if k not in get_show_column %}
+           <option value="{{k}}" >{{v}}</option>
+
+          {% endif %}
+
+
+          {% endfor %}
+          {% for selected_item in get_show_column %}
+           <option value="{{selected_item}}" selected="true">{{ all_column_list|get_item:selected_item  }}</option>
+           {% endfor %}
+        </select>
+      </div>
+    </div>
+      <div class="modal-footer">
+        <a href="{{BASE_URL}}products-view" class="btn btn-default" >Close</a>
+
+        <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
+        <button type="button" class="btn btn-danger click_to_submit">Submit</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!----------------Popup Ends---------------->
+          
+{% endblock %}
+
+
+
+
+{% block script %}
+<script src='{% static "js/jquery.lwMultiSelect.js" %}' ></script>
+<script type="text/javascript">
+  function doSomething() {
+    $(".se-pre-con").css("display","block");
+}
+
+
+
+  $(document).on("click","#create_user_story_copy",function(){
+   var ids = new Array();
+
+  $(".all_project_get_ids:checked").each(function(){
+             
+            ids.push(this.value); 
+        });
+ var urls = "{{BASE_URL}}user-story-view/create-copys/"; 
+if(ids!="")
+{
+  swal({
+      title: "Are you sure?",
+      text: "Do you want to created copy of selected Storyes",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+       window.location.href = urls+ids;           
+        // swal(done, {
+        //   icon: "success",
+        // });
+      } else {
+        swal(fail);
+      }
+    });
+}
+else
+{
+  swal("Warning", "Select the story that you want to create a copy!", "warning");
+}
+
+
+  });
+</script>
+<script>
+$(document).ready(function() {
+/*$('#selectDefaults').lwMultiSelect();*/
+$('#selectDefaults').lwMultiSelect({
+  addAllText:"Select All",
+  removeAllText:"Remove All",
+  selectedLabel:"Values accepted",
+  maxSelect: 0,//0 = no restrictions
+  maxText:'',
+});
+});
+
+$(document).on("click",".click_to_submit",function(){
+var urls = "{{BASE_URL}}manage-products/update-table-structure/"; 
+var names = new Array();
+$(".lwms-right .lwms-selectli").each(function(){
+  names.push($(this).data("value")); 
+});
+
+if(names=="")
+{
+  swal("Warning", "Select the Columns that you want to show in table!", "warning");
+}
+else{
+  swal({
+      title: "{{Rearrange_Request_msg}}",
+      // text: "Do you want to update the table structure.",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+       window.location.href = urls+names;           
+        // swal(done, {
+        //   icon: "success",
+        // });
+      } else {
+        swal(fail);
+      }
+    });
+}
+
+
+});
+</script>
+{% endblock %}
